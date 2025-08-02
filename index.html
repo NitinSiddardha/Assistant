@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Gemini WebSocket Chat</title>
+    <style>
+      body {
+        background: #f9f9f9;
+      }
+      #container {
+        max-width: 800px; /* Increased width */
+        margin: 40px auto;
+        padding: 32px;    /* Slightly more padding */
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      }
+      #chat {
+        min-height: 500px;   /* Increased height */
+        margin-bottom: 24px; /* More space below */
+        font-size: 1.1rem;   /* Slightly larger text */
+        overflow-y: auto;    /* Scroll if content overflows */
+        padding: 8px;
+      }
+      #prompt-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+        gap: 8px;
+      }
+      #input {
+        flex: 1;
+        min-width: 0;
+        padding: 10px;
+        font-size: 1.1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      #send {
+        padding: 10px 22px;
+        font-size: 1.1rem;
+        border-radius: 5px;
+        border: none;
+        background: #1976d2;
+        color: #fff;
+        cursor: pointer;
+      }
+      #send:hover {
+        background: #125ea8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="chat"></div>
+      <div id="prompt-row">
+        <input id="input" type="text" placeholder="Type your message..." />
+        <button id="send">Send</button>
+      </div>
+    </div>
+    <script>
+      const chatDiv = document.getElementById("chat");
+      const input = document.getElementById("input");
+      const ws = new WebSocket("ws://" + location.host + "/ws");
+      ws.onmessage = e => {
+        const span = document.createElement("div");
+        span.innerText = e.data;
+        chatDiv.appendChild(span);
+      };
+      function sendMsg() {
+        const msg = input.value;
+        if (msg.trim() === "") return;
+        chatDiv.innerHTML += `<div style="font-weight:bold">You: ${msg}</div>`;
+        ws.send(msg);
+        input.value = "";
+      }
+      document.getElementById("send").onclick = sendMsg;
+      input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          sendMsg();
+        }
+      });
+    </script>
+  </body>
+</html>
