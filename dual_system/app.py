@@ -1,66 +1,3 @@
-# Settings page for user profile and preferences
-@app.route("/settings", methods=["GET", "POST"])
-@login_required
-def settings():
-    conn = get_postgres_conn()
-    cur = conn.cursor()
-    if request.method == "POST":
-        # Update profile info
-        username = request.form.get("username")
-        email = request.form.get("email")
-        age = request.form.get("age")
-        preferred_model = request.form.get("preferred_model")
-        notify = 1 if request.form.get("notify") else 0
-
-        # Update user info
-        cur.execute("UPDATE users SET username=%s, email=%s, age=%s WHERE id=%s", (username, email, age, current_user.id))
-
-        # Optionally update preferences (add columns if needed)
-        try:
-            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_model TEXT")
-            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify BOOLEAN DEFAULT FALSE")
-        except Exception:
-            pass
-        cur.execute("UPDATE users SET preferred_model=%s, notify=%s WHERE id=%s", (preferred_model, notify, current_user.id))
-
-        # Change password if requested
-        current_password = request.form.get("current_password")
-        new_password = request.form.get("new_password")
-        confirm_new_password = request.form.get("confirm_new_password")
-        if current_password and new_password and new_password == confirm_new_password:
-            cur.execute("SELECT password_hash FROM users WHERE id=%s", (current_user.id,))
-            row = cur.fetchone()
-            if row and check_password_hash(row[0], current_password):
-                new_hash = generate_password_hash(new_password)
-                cur.execute("UPDATE users SET password_hash=%s WHERE id=%s", (new_hash, current_user.id))
-                flash("Password updated.", "success")
-            else:
-                flash("Current password incorrect.", "error")
-        elif new_password or confirm_new_password:
-            flash("To change password, fill all password fields and ensure new passwords match.", "error")
-
-        conn.commit()
-        flash("Settings updated.", "success")
-        cur.close()
-        conn.close()
-        return redirect(url_for('settings'))
-
-    # GET: fetch user info for form
-    cur.execute("SELECT username, email, age, preferred_model, notify FROM users WHERE id=%s", (current_user.id,))
-    row = cur.fetchone()
-    user = {
-        'username': row[0],
-        'email': row[1],
-        'age': row[2],
-        'preferred_model': row[3] or 'gemini-1.5-flash',
-        'notify': row[4] if row[4] is not None else False
-    }
-    cur.close()
-    conn.close()
-    # Patch current_user for template
-    for k, v in user.items():
-        setattr(current_user, k, v)
-    return render_template("settings.html")
 # app.py
 from flask import Flask, request, render_template, session, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
@@ -258,6 +195,70 @@ def signup():
         conn.close()
     
     return render_template("signup.html")
+
+# Settings page for user profile and preferences
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    conn = get_postgres_conn()
+    cur = conn.cursor()
+    if request.method == "POST":
+        # Update profile info
+        username = request.form.get("username")
+        email = request.form.get("email")
+        age = request.form.get("age")
+        preferred_model = request.form.get("preferred_model")
+        notify = 1 if request.form.get("notify") else 0
+
+        # Update user info
+        cur.execute("UPDATE users SET username=%s, email=%s, age=%s WHERE id=%s", (username, email, age, current_user.id))
+
+        # Optionally update preferences (add columns if needed)
+        try:
+            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS preferred_model TEXT")
+            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS notify BOOLEAN DEFAULT FALSE")
+        except Exception:
+            pass
+        cur.execute("UPDATE users SET preferred_model=%s, notify=%s WHERE id=%s", (preferred_model, notify, current_user.id))
+
+        # Change password if requested
+        current_password = request.form.get("current_password")
+        new_password = request.form.get("new_password")
+        confirm_new_password = request.form.get("confirm_new_password")
+        if current_password and new_password and new_password == confirm_new_password:
+            cur.execute("SELECT password_hash FROM users WHERE id=%s", (current_user.id,))
+            row = cur.fetchone()
+            if row and check_password_hash(row[0], current_password):
+                new_hash = generate_password_hash(new_password)
+                cur.execute("UPDATE users SET password_hash=%s WHERE id=%s", (new_hash, current_user.id))
+                flash("Password updated.", "success")
+            else:
+                flash("Current password incorrect.", "error")
+        elif new_password or confirm_new_password:
+            flash("To change password, fill all password fields and ensure new passwords match.", "error")
+
+        conn.commit()
+        flash("Settings updated.", "success")
+        cur.close()
+        conn.close()
+        return redirect(url_for('settings'))
+
+    # GET: fetch user info for form
+    cur.execute("SELECT username, email, age, preferred_model, notify FROM users WHERE id=%s", (current_user.id,))
+    row = cur.fetchone()
+    user = {
+        'username': row[0],
+        'email': row[1],
+        'age': row[2],
+        'preferred_model': row[3] or 'gemini-1.5-flash',
+        'notify': row[4] if row[4] is not None else False
+    }
+    cur.close()
+    conn.close()
+    # Patch current_user for template
+    for k, v in user.items():
+        setattr(current_user, k, v)
+    return render_template("settings.html")
 
 # Simple admin page protected by role
 @app.route("/admin")
