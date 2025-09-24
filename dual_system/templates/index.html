@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chat Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script>
+    // Send form on Enter key press inside textarea
+    function handleKeyPress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        document.getElementById("promptForm").submit();
+      }
+    }
+
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('active');
+    }
+
+    // Create new conversation
+    function newConversation() {
+      if (confirm('Start a new conversation? This will clear the current chat.')) {
+        document.getElementById("clearForm").submit();
+      }
+    }
+
+    // Load conversation from sidebar
+    function loadConversation(conversationId) {
+      // This would be implemented with backend support
+      console.log('Loading conversation:', conversationId);
+    }
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+        <button class="new-chat-btn" onclick="newConversation()">
+          <i class="fas fa-plus"></i> New Chat
+        </button>
+      </div>
+      
+      <div class="conversation-list">
+        <div class="conversation-item active">
+          <i class="fas fa-comments"></i>
+          <span>Current Chat</span>
+        </div>
+        <!-- More conversation items would be added here dynamically -->
+        <div class="conversation-item">
+          <i class="fas fa-history"></i>
+          <span>Previous Chat 1</span>
+        </div>
+        <div class="conversation-item">
+          <i class="fas fa-history"></i>
+          <span>Previous Chat 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="main-content">
+      <!-- Mobile Header -->
+      <div class="mobile-header">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h2>AI Chat Assistant</h2>
+      </div>
+
+      <!-- Chat Messages -->
+      <div class="chat-container">
+        {% if conversation %}
+          {% for turn in conversation %}
+            <div class="message-container">
+              <!-- User Message -->
+              <div class="message user-message">
+                <div class="message-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="message-content">
+                  <div class="message-text">{{ turn.prompt }}</div>
+                </div>
+              </div>
+
+              <!-- AI Response -->
+              <div class="message ai-message">
+                <div class="message-avatar">
+                  <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                  <div class="model-info">
+                    <span class="model-badge">{{ turn.model_used }}</span>
+                  </div>
+                  <div class="message-text">{{ turn.response }}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <!-- Welcome Message -->
+          <div class="welcome-message">
+            <div class="welcome-icon">
+              <i class="fas fa-robot"></i>
+            </div>
+            <h2>Welcome to AI Assistant!</h2>
+            <p>I'm here to help you with any questions or tasks. Just type your message below and I'll route it to the best AI model for your needs.</p>
+            <div class="feature-list">
+              <div class="feature-item">
+                <i class="fas fa-bolt"></i>
+                <span>Fast responses for simple questions</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-brain"></i>
+                <span>Powerful reasoning for complex tasks</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-route"></i>
+                <span>Smart routing between AI models</span>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Error Display -->
+      {% if error %}
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="error-content">
+            <strong>Error:</strong> {{ error }}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Input Form -->
+      <div class="input-container">
+        <form id="promptForm" method="post">
+          <div class="input-wrapper">
+            <textarea 
+              name="prompt" 
+              rows="3" 
+              placeholder="Type your message here..." 
+              required 
+              onkeypress="handleKeyPress(event)"
+            >{{ request.form.prompt if request.method=='POST' else '' }}</textarea>
+            <button type="submit" class="send-button">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden form for clearing conversation -->
+  <form id="clearForm" method="post" style="display: none;">
+    <input type="hidden" name="clear" value="1">
+  </form>
+</body>
+</html>
+
+
+

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat - AI Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script>
+    // Send form on Enter key press inside textarea
+    function handleKeyPress(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        document.getElementById("promptForm").submit();
+      }
+    }
+
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('active');
+    }
+
+    // Create new conversation
+    function newConversation() {
+      if (confirm('Start a new conversation? This will clear the current chat.')) {
+        window.location.href = "{{ url_for('new_conversation') }}";
+      }
+    }
+
+    // Delete conversation
+    function deleteConversation(conversationId) {
+      if (confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+        window.location.href = "{{ url_for('delete_conversation', conversation_id=0) }}".replace('0', conversationId);
+      }
+    }
+
+    // Load conversation
+    function loadConversation(conversationId) {
+      window.location.href = "{{ url_for('load_conversation', conversation_id=0) }}".replace('0', conversationId);
+    }
+
+  </script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+        <button class="new-chat-btn" onclick="newConversation()">
+          <i class="fas fa-plus"></i> New Chat
+        </button>
+      </div>
+      
+      <!-- User Profile -->
+      <div class="user-profile">
+        <div class="profile-info">
+          <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="profile-details">
+            <span class="username">{{ current_user.username }}</span>
+            {% if current_user.age %}
+              <span class="user-age">{{ current_user.age }} years old</span>
+            {% endif %}
+            {% if current_user.role == 'admin' %}
+              <a href="{{ url_for('admin_dashboard') }}" class="admin-link" title="Admin">
+                <i class="fas fa-shield-alt"></i> Admin
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        <a href="{{ url_for('settings') }}" class="settings-btn" title="Settings" style="margin-right:10px;">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+        <a href="{{ url_for('logout') }}" class="logout-btn" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+      </div>
+      
+      <div class="conversation-list">
+        <h4>Recent Conversations</h4>
+        {% for conv in recent_conversations %}
+          <div class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
+            <div class="conversation-content" onclick="loadConversation({{ conv.id }})">
+              <i class="fas fa-{% if conv.id == conversation.id %}comments{% else %}history{% endif %}"></i>
+              <span class="conversation-title">{{ conv.title }}</span>
+              <small class="conversation-date">
+                {% if conv.updated_at is string %}
+                  {{ conv.updated_at[:10] }}
+                {% else %}
+                  {{ conv.updated_at.strftime('%b %d') }}
+                {% endif %}
+              </small>
+            </div>
+            {% if conv.id != conversation.id %}
+              <form method="POST" action="{{ url_for('delete_conversation', conversation_id=conv.id) }}" style="display:inline;">
+                <button type="submit" class="delete-conv-btn" title="Delete" onclick="return confirm('Are you sure you want to delete this conversation? This action cannot be undone.');">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="main-content">
+      <!-- Mobile Header -->
+      <div class="mobile-header">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="header-content">
+          <h2>AI Chat Assistant</h2>
+          <div class="current-date">
+            <i class="fas fa-calendar"></i>
+            <span>{{ current_date }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Messages -->
+      <div class="chat-container">
+        {% if messages %}
+          {% for message in messages %}
+            <div class="message-container">
+              <!-- User Message -->
+              <div class="message user-message">
+                <div class="message-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="message-content">
+                  <div class="message-text">{{ message.prompt }}</div>
+                  <div class="message-time">{{ message.created_at.strftime('%H:%M') }}</div>
+                </div>
+              </div>
+
+              <!-- AI Response -->
+              <div class="message ai-message">
+                <div class="message-avatar">
+                  <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                  <div class="model-info">
+                    <span class="model-badge">{{ message.model_used }}</span>
+                    {% if message.complexity %}
+                      <span class="complexity-badge">Complexity: {{ "%.2f"|format(message.complexity) }}</span>
+                    {% endif %}
+                  </div>
+                  <div class="message-text">{{ message.response }}</div>
+                  <div class="message-time">{{ message.created_at.strftime('%H:%M') }}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <!-- Welcome Message -->
+          <div class="welcome-message">
+            <div class="welcome-icon">
+              <i class="fas fa-robot"></i>
+            </div>
+            <h2>Welcome, {{ current_user.username }}!</h2>
+            <p>I'm here to help you with any questions or tasks. Your responses will be personalized based on your profile.</p>
+            <div class="feature-list">
+              <div class="feature-item">
+                <i class="fas fa-bolt"></i>
+                <span>Fast responses for simple questions</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-brain"></i>
+                <span>Powerful reasoning for complex tasks</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-route"></i>
+                <span>Smart routing between AI models</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-user-circle"></i>
+                <span>Personalized for you</span>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              <i class="fas fa-{% if category == 'error' %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Input Form -->
+      <div class="input-container">
+        <form id="promptForm" method="POST" action="{{ url_for('send_message') }}">
+          <div class="input-wrapper">
+            <textarea 
+              name="prompt" 
+              rows="3" 
+              placeholder="Type your message here..." 
+              required 
+              onkeypress="handleKeyPress(event)"
+            ></textarea>
+            <button type="submit" class="send-button">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

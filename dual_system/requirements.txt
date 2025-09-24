@@ -1,0 +1,10 @@
+flask
+python-dotenv
+google-generativeai
+openai
+spacy
+redis
+psycopg2-binary
+neo4j
+flask-login
+werkzeug

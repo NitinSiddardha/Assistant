@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chat Assistant - Welcome</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="home-container">
+    <!-- Navigation -->
+    <nav class="home-nav">
+      <div class="nav-content">
+        <div class="nav-logo">
+          <i class="fas fa-robot"></i>
+          <span>AI Assistant</span>
+        </div>
+        <div class="nav-actions">
+          <a href="{{ url_for('login') }}" class="nav-btn login-btn">Login</a>
+          <a href="{{ url_for('signup') }}" class="nav-btn signup-btn">Sign Up</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1>Your Personal AI Assistant</h1>
+        <p class="hero-subtitle">Experience intelligent conversations with smart routing between multiple AI models for the best possible responses.</p>
+        <div class="current-date">
+          <i class="fas fa-calendar"></i>
+          <span>{{ current_date }}</span>
+        </div>
+        
+        <div class="hero-features">
+          <div class="feature-card">
+            <i class="fas fa-bolt"></i>
+            <h3>Fast & Smart</h3>
+            <p>Automatically routes your questions to the best AI model</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-user-circle"></i>
+            <h3>Personalized</h3>
+            <p>Learns your preferences and adapts responses accordingly</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-history"></i>
+            <h3>Memory</h3>
+            <p>Keeps track of your conversations and learns from them</p>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a href="{{ url_for('signup') }}" class="cta-button">
+            <i class="fas fa-rocket"></i>
+            Get Started Free
+          </a>
+          <a href="{{ url_for('login') }}" class="secondary-button">
+            Already have an account? Login
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="how-it-works">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Ask a Question</h3>
+          <p>Type any question or request in natural language</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Smart Routing</h3>
+          <p>Our system analyzes and routes to the best AI model</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Get Response</h3>
+          <p>Receive personalized, intelligent answers instantly</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="home-footer">
+      <p>&copy; 2024 AI Chat Assistant. Built with ❤️ for intelligent conversations.</p>
+    </footer>
+  </div>
+</body>
+</html>

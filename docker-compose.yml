@@ -1,0 +1,51 @@
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    environment:
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DB=${REDIS_DB}
+      - NEO4J_URI=${NEO4J_URI}
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FAST_MODEL_ID=${FAST_MODEL_ID}
+      - BIG_MODEL_ID=${BIG_MODEL_ID}
+      - PROMPT_LENGTH_THRESHOLD=${PROMPT_LENGTH_THRESHOLD}
+      - MAX_TOKENS_UNIFIED=${MAX_TOKENS_UNIFIED}
+    ports:
+      - "5051:5000"  # Web host port changed to 5051 to avoid conflicts
+    depends_on:
+      - postgres
+      - redis
+      - neo4j
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chat_app
+    ports:
+      - "5435:5432"  # Host port changed to 5435 to avoid conflicts
+
+  redis:
+    image: redis:7
+    ports:
+      - "6382:6379"  # Host port changed to 6382 to avoid conflicts
+
+  neo4j:
+    image: neo4j:5
+    environment:
+      NEO4J_AUTH: "neo4j/password"
+    ports:
+      - "7690:7687"  # Host port changed to 7690 to avoid conflicts

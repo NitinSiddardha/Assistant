@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up - AI Chat Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <a href="{{ url_for('home') }}" class="back-link">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1><i class="fas fa-robot"></i> Join AI Assistant</h1>
+        <p>Create your account to start personalized AI conversations</p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">
+              <i class="fas fa-{% if category == 'error' %}exclamation-triangle{% else %}check-circle{% endif %}"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" class="auth-form">
+        <div class="form-group">
+          <label for="username">
+            <i class="fas fa-user"></i>
+            Username
+          </label>
+          <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">
+            <i class="fas fa-envelope"></i>
+            Email
+          </label>
+          <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="age">
+            <i class="fas fa-birthday-cake"></i>
+            Age (Optional)
+          </label>
+          <input type="number" id="age" name="age" min="13" max="120" placeholder="Enter your age">
+          <small>This helps us personalize your experience</small>
+        </div>
+
+        <div class="form-group">
+          <label for="password">
+            <i class="fas fa-lock"></i>
+            Password
+          </label>
+          <input type="password" id="password" name="password" required minlength="6">
+          <small>Must be at least 6 characters</small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">
+            <i class="fas fa-lock"></i>
+            Confirm Password
+          </label>
+          <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+
+        <button type="submit" class="auth-button">
+          <i class="fas fa-user-plus"></i>
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Sign in here</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings - AI Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="settings-container">
+    <h2>Settings</h2>
+    <form method="POST" action="{{ url_for('settings') }}">
+      <h3>Profile</h3>
+      <label>Username: <input type="text" name="username" value="{{ current_user.username }}" required></label><br>
+      <label>Email: <input type="email" name="email" value="{{ current_user.email }}" required></label><br>
+      <label>Age: <input type="number" name="age" value="{{ current_user.age }}"></label><br>
+      <h3>Change Password</h3>
+      <label>Current Password: <input type="password" name="current_password"></label><br>
+      <label>New Password: <input type="password" name="new_password"></label><br>
+      <label>Confirm New Password: <input type="password" name="confirm_new_password"></label><br>
+      <h3>AI Preferences</h3>
+      <label>Preferred Model:
+        <select name="preferred_model">
+          <option value="gemini-1.5-flash" {% if current_user.preferred_model == 'gemini-1.5-flash' %}selected{% endif %}>Gemini 1.5 Flash</option>
+          <option value="gpt-4o" {% if current_user.preferred_model == 'gpt-4o' %}selected{% endif %}>GPT-4o</option>
+        </select>
+      </label><br>
+      <label>Notification Preferences:
+        <input type="checkbox" name="notify" value="1" {% if current_user.notify %}checked{% endif %}> Enable notifications
+      </label><br>
+      <button type="submit">Save Settings</button>
+    </form>
+    <a href="{{ url_for('chat') }}">Back to Chat</a>
+  </div>
+</body>
+</html>
